@@ -1,0 +1,9 @@
+{
+  "rules": [
+    {"id": "opening-bell", "type": "opening_bell"},
+    {"id": "eternal-plan-stop", "symbol": "ETERNAL", "type": "stop", "price": 306.75, "note": "plan stop: opening-range midpoint", "date": "2026-10-23"},
+    {"id": "eternal-plan-target", "symbol": "ETERNAL", "type": "target", "price": 319.65, "note": "plan target: 2R (two times the risk)", "date": "2026-10-23"},
+    {"id": "eternal-flat-by", "symbol": "ETERNAL", "type": "time", "at": "15:15", "label": "flat by close", "before_close": true, "date": "2026-10-23"},
+    {"id": "eternal-move-3", "symbol": "ETERNAL", "type": "pct_move", "pct": 3}
+  ]
+}

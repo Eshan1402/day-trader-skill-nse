@@ -1,0 +1,6 @@
+# your own trading state and settings: never commit these
+trader/
+nse/
+__pycache__/
+*.pyc
+.DS_Store

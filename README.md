@@ -73,6 +73,45 @@ or in the `SEC_USER_AGENT` environment variable.
 | `/trader-analyst` | Earnings Analyst | Reads earnings reports and sums up what changed. |
 | `/trader-pelosi` | Pelosi Tracker | Reads Congress's stock-trade disclosures the minute they are filed. |
 
+## NSE (India) version
+
+This fork adds seven skills for the National Stock Exchange of India. They are
+ports of the US skills above, same method, NSE market:
+
+| command | job |
+| --- | --- |
+| `/nse-scanner` | Chart Scanner on NSE's EQ-series stocks (`EQUITY_L.csv`) |
+| `/nse-entry` | Entry Timer; `NIFTY` reads the Nifty 50 index for market context (read-only) |
+| `/nse-exit` | Exit Planner, flat by 15:15 IST |
+| `/nse-timemachine` | Time Machine on NSE 5-minute bars |
+| `/nse-budget` | Budget Manager in rupees |
+| `/nse-risk` | Risk Manager with NSE hours and symbols |
+| `/nse-alerts` | Price Alerts on the NSE clock |
+
+- **Session:** 9:15 AM to 3:30 PM IST. The 15-minute opening range is 9:15
+  to 9:30. Entries 09:30 to 15:00, flat by 15:15 (ahead of brokers' intraday
+  square-off around 15:20).
+- **Holidays:** NSE's 2026 equity-segment list. 2027 is not published yet:
+  add it to `NYSE_HOLIDAYS` in each script when it is.
+- **Symbols:** plain NSE symbols (`RELIANCE`, `M&M`, `BAJAJ-AUTO`); the
+  scripts add `.NS` for Yahoo. BE and BZ (trade-for-trade) stocks are left out.
+- **Money:** rupees, config keys end in `_inr`, files live in `nse/` (rules in
+  `nse/config.json`, start from `nse-budget/config.example.json`).
+- **Yahoo's NSE data** leaves the 15:20 and 15:25 bars empty on most days, so
+  the Time Machine treats a full NSE session as 9:15 to 15:20 (73 bars).
+- **No NSE broker, news or earnings skill.** Nothing places an NSE order: every
+  ticket is a dry run. Brokerage, STT, fees, GST, stamp duty and NSE tick sizes
+  are not modelled.
+
+```bash
+mkdir -p nse && cp nse-budget/config.example.json nse/config.json   # then set your own limits
+python3 nse-scanner/scan.py universe
+python3 nse-scanner/scan.py orb
+python3 nse-entry/entry.py check RELIANCE
+python3 nse-entry/entry.py check NIFTY
+python3 -m unittest tests.test_nse -v
+```
+
 ## How to use it
 
 Everything lands in a `trader/` folder in your project, and each skill reads
@@ -210,7 +249,14 @@ trader-broker/      SKILL.md, ticket.py, claude_desktop_config.example.json
 trader-alerts/      SKILL.md, alerts.py, alerts.example.json
 trader-analyst/     SKILL.md, facts.py, metrics.example.json
 trader-pelosi/      SKILL.md, ptr.py
-tests/              unittest suite + offline fixtures
+nse-scanner/        SKILL.md, scan.py                    (NSE port)
+nse-entry/          SKILL.md, entry.py                   (NSE port)
+nse-exit/           SKILL.md, exit.py                    (NSE port)
+nse-timemachine/    SKILL.md, timemachine.py             (NSE port)
+nse-risk/           SKILL.md, check.py                   (NSE port)
+nse-budget/         SKILL.md, size.py, config.example.json (NSE port, rupees)
+nse-alerts/         SKILL.md, alerts.py, alerts.example.json (NSE port)
+tests/              unittest suite + offline fixtures, test_nse.py for the NSE port
 ```
 
-MIT. Made by [Jake Schincariol](https://opusjake.ai).
+MIT. Made by [Jake Schincariol](https://opusjake.ai). NSE port added in this fork.

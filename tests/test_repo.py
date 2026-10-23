@@ -15,6 +15,8 @@ ABOUT = ("11 Claude skills for day trading: scan thousands of charts, track brea
 ORDER_PATH = ["trader-scanner", "trader-entry", "trader-exit", "trader-timemachine", "trader-budget",
               "trader-pelosi", "trader-risk", "trader-broker", "trader-alerts"]
 V1_ONLY = ["trader-copycat", "trader-screener", "trader-tax", "trader-rebalance"]
+# the NSE (India) port of the seven day-trade skills that do not need US-only data or a US broker
+NSE = ["nse-scanner", "nse-entry", "nse-exit", "nse-timemachine", "nse-budget", "nse-risk", "nse-alerts"]
 
 
 def frontmatter(path):
@@ -36,14 +38,14 @@ class Repo(unittest.TestCase):
     def test_eleven_skill_folders_at_the_root(self):
         found = sorted(d for d in os.listdir(ROOT)
                        if os.path.isfile(os.path.join(ROOT, d, "SKILL.md")))
-        self.assertEqual(found, sorted(SKILLS))
+        self.assertEqual(found, sorted(SKILLS + NSE))
 
     def test_root_matches_the_reel(self):
         root = sorted(d for d in os.listdir(ROOT) if not d.startswith(".git"))
-        self.assertEqual(root, sorted([".claude-plugin", "LICENSE", "README.md", "tests"] + SKILLS))
+        self.assertEqual(root, sorted([".claude-plugin", "LICENSE", "README.md", "tests"] + SKILLS + NSE))
 
     def test_frontmatter_name_and_description(self):
-        for s in SKILLS:
+        for s in SKILLS + NSE:
             fm, text = frontmatter(os.path.join(ROOT, s, "SKILL.md"))
             self.assertIn("name: %s\n" % s, fm + "\n", s)
             self.assertRegex(fm, r"description: ", s)
@@ -51,7 +53,7 @@ class Repo(unittest.TestCase):
             self.assertGreater(len(text.splitlines()), 60, s)
 
     def test_order_path_skills_carry_the_safety_rule(self):
-        for s in ORDER_PATH:
+        for s in ORDER_PATH + NSE:
             _, text = frontmatter(os.path.join(ROOT, s, "SKILL.md"))
             low = " ".join(text.lower().split())
             self.assertIn("not financial advice", low, s)
@@ -78,7 +80,7 @@ class Repo(unittest.TestCase):
                      "/plugin install day-trader-skill@day-trader-skill",
                      "## Fine print"):
             self.assertIn(line, readme)
-        for s in SKILLS:
+        for s in SKILLS + NSE:
             self.assertIn("/" + s, readme, s)
 
     def test_no_em_dashes_and_no_personal_email(self):
@@ -102,7 +104,7 @@ class Repo(unittest.TestCase):
 
     def test_every_tool_runs_on_python_3_8(self):
         # no 3.9+ only modules or syntax in the tools (the README promises 3.8)
-        for s in SKILLS:
+        for s in SKILLS + NSE:
             folder = os.path.join(ROOT, s)
             for f in os.listdir(folder):
                 if not f.endswith(".py"):
